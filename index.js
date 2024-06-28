@@ -30,15 +30,17 @@ io.on("connection", (socket) => {
     socket.broadcast.to(data.teacherId).emit("receiveNewUser", data);
   });
 
-  socket.on("updateUserList", (newList) => {
-    setTimeout(() => {
-      // console.log("New list created", newList);
+  socket.on("updateUserList", async (newList) => {
+    // console.log("New list created", newList);
 
-      newList.forEach((user) => {
-        if (user.userId != user.teacherId)
-          socket.broadcast.to(user.userId).emit("updateList", newList);
-      });
-    }, 200);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    for (const user of newList) {
+      if (user.userId != user.teacherId) {
+        socket.broadcast.to(user.userId).emit("updateList", newList);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
   });
 
   socket.on("sendMessage", (data) => {
